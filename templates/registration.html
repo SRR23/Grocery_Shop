@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Registration{% endblock title %}
+{% block content %}
+
+<!-- Contact Start -->
+
+<div class="container-fluid contact py-5">
+    <div class="container py-5">
+        <div class="p-5 bg-light rounded">
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="text-center mx-auto" style="max-width: 700px;">
+                        <br>
+                        <h1 class="text-primary">Register to your account</h1>
+                        
+                    </div>
+                </div>
+                
+                {% if messages %}
+                    <div class="col-lg-14">        
+                        {% include "message.html" %}
+                    </div>  
+                {% endif %}
+                
+                <div class="col-lg-14">
+                    {% if messages %}
+                        
+                      {% include "message.html" %}
+                        
+                    {% endif %}
+                    <form action="" class="" method="POST" novalidate>
+                        {% csrf_token %}
+                        <input name="username" type="text" class="w-100 form-control border-0 py-3 mb-4" placeholder="Your UserName">
+                        {{form.username.errors}}
+                        <input name="email" type="email" class="w-100 form-control border-0 py-3 mb-4" placeholder="Enter Your Email">
+                        {{form.email.errors}}
+                        <input name="password" type="password" class="w-100 form-control border-0 py-3 mb-4" placeholder="Password">
+                        {{form.password.errors}}
+                        <input name="password2" type="password" class="w-100 form-control border-0 py-3 mb-4" placeholder="Confirm Password">
+                        {{form.password2.errors}}
+                        
+                        <button class="w-100 btn form-control border-secondary py-3 bg-white text-primary " type="submit">Register</button>
+
+                        <div class="col-12">
+                            <div class="text-center mx-auto" style="max-width: 700px;">
+                                <p> Already have an account!!
+                                <strong> 
+                                    <a class="text-decoration-none text-primary" 
+                                    href="{% url 'login' %}">Login </a>here
+                                </strong>
+                            </p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Contact End -->
+
+{% endblock content %}

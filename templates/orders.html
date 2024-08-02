@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}My Orders{% endblock title %}
+{% block content %}
+
+<!-- Single Page Header start -->
+<div class="container-fluid page-header py-5">
+    <h1 class="text-center text-white display-6">Order</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+        <li class="breadcrumb-item active text-white">My Orders</li>
+    </ol>
+</div>
+<!-- Single Page Header End -->
+
+<section>
+    <div class="container my-5">
+        <div class="row">
+            {% if orders %}
+            <div class="col-md-12">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Transaction Id</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Phone</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <th scope="row">{{order.transaction_id}}</th>
+                            <td>{{order.email}}</td>
+                            <td>{{order.phone_number}}</td>
+                            <td>{{order.status}}</td>
+                            <td>{{order.created_date|date:'Y-m-d'}}</td>
+                            <td>
+                                <i type="button" style="cursor:pointer" data-bs-toggle="modal"
+                                    data-bs-target="#exampleModal_{{order.id}}" class="fa fa-eye"></i>
+                            </td>
+                        </tr>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="exampleModal_{{order.id}}" tabindex="-1" 
+                        aria-labelledby="exampleModalLabel_{{order.id}}" aria-hidden="true">
+                            <div class="modal-dialog modal-xl">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel_{{order.id}}">Total: ${{order.total_bill}}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body py-4">
+                                        {% for order_item in order.order_items.all %}
+                                        {% with product=order_item.product %}
+                                        <div class="row my-2">
+                                            <div class="col-md-4 px-4">
+                                                <img style="width: 100%; height: 220px;" src="{{product.image.url}}" alt="">
+                                            </div>
+                        
+                                            <div class="col-md-8 px-4">
+                                                <h4 class="mb-2">{{product.title}}</h4>
+                                                <p><strong>Price: </strong>${{order_item.price}}</p>
+                                                <p><strong>Quantity: </strong>{{order_item.quantity}}</p>
+                                                <p><strong>Sub-total: </strong>${{order_item.total}}</p>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        {% endwith %}
+                                        {% endfor %}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <h3>No orders</h3>
+            {% endif %}
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock content %}

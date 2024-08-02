@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+{% block links %}
+
+<style>
+    #paypal-button-container {
+        display: none;
+    }
+</style>
+
+{% endblock links %}
+
+    <!-- Single Page Header start -->
+    <div class="container-fluid page-header py-5">
+        <h1 class="text-center text-white display-6">Checkout</h1>
+        <ol class="breadcrumb justify-content-center mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item active text-white">Checkout</li>
+        </ol>
+    </div>
+    <!-- Single Page Header End -->
+
+
+    <!-- Checkout Page Start -->
+    <div class="container-fluid py-5">
+        <div id="main-content" class="container py-5">
+            {% if messages %}
+                        
+            {% include "message.html" %}
+                        
+            {% endif %}
+
+            <div id="paypal-button-container"></div>
+
+            <form id="checkout-form" novalidate method="POST">
+                <h1 class="mb-4">Billing details</h1>
+                {% csrf_token %}
+                <div class="row g-5">
+                    <div class="col-md-12 col-lg-6 col-xl-7">
+                        <div class="row">
+                            <div class="col-md-12 col-lg-6">
+                                <div class="form-item w-100">
+                                    <label class="form-label my-3">First Name<sup>*</sup></label>
+                                    <input name="first_name" type="text" class="form-control">
+                                    <small id="error_first_name" class="text-danger"></small>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-lg-6">
+                                <div class="form-item w-100">
+                                    <label class="form-label my-3">Last Name<sup>*</sup></label>
+                                    <input name="last_name" type="text" class="form-control">
+                                    <small id="error_last_name" class="text-danger"></small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label my-3">Email<sup>*</sup></label>
+                            <input name="email" type="email" class="form-control">
+                            <small id="error_email" class="text-danger"></small>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label my-3">Phone Number <sup>*</sup></label>
+                            <input name="phone_number" type="text" class="form-control">
+                            <small id="error_phone_number" class="text-danger"></small>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label my-3">City<sup>*</sup></label>
+                            <input name="city" type="text" class="form-control">
+                            <small id="error_city" class="text-danger"></small>
+                        </div>
+                        
+                        <div class="form-item">
+                            <label class="form-label my-3">Zip code<sup>*</sup></label>
+                            <input name="zip_code" type="text" class="form-control">
+                            <small id="error_zip_code" class="text-danger"></small>
+                        </div>
+
+                        <div class="form-item">
+                            <label class="form-label my-3">Address<sup>*</sup></label>
+                            <input name="address" type="text" class="form-control">
+                            <small id="error_address" class="text-danger"></small>
+                        </div>
+
+                        <br>
+
+                        <div class="form-item" class="row g-4 text-center align-items-center justify-content-center pt-4">
+                            <button type="submit" class="btn border-secondary py-3 px-4 text-uppercase w-100 text-primary">Place Order</button>
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Checkout Page End -->
+
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+    <script
+        src="https://www.paypal.com/sdk/js?client-id=Aa6U6VxbFgqljvfP2Uim3pcM6kERaEoBexYuL1TMwKI0Jl7pqPgiJN_aUcXOmpJgDPjCKurb9LNpzAJj&currency=USD"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+
+        const form = document.getElementById('checkout-form');
+        const csrfmiddlewaretoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const paypalCheckout = document.getElementById('paypal-button-container');
+        const mainContent = document.getElementById('main-content');
+        let formIsvalid = false;
+
+        const validateFormAndCheckout = () => {
+            const url = '/checkout/';
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': csrfmiddlewaretoken
+                },
+                body: new FormData(form)
+            })
+                .then(response => {
+                    return response.json();
+                })
+
+                .then(data => {
+                    if (data.success) {
+                        formIsvalid = true;
+                        new FormData(form).forEach((value, key) => {
+                            if (key != 'csrfmiddlewaretoken') {
+                                const errorElement = document.getElementById(`error_${key}`);
+                                if (errorElement) {
+                                    errorElement.innerText = "";
+                                } else {
+                                    console.warn(`Error element with ID 'error_${key}' not found.`);
+                                }
+                            }
+                        });
+                        console.log('valid');
+                        paypalCheckout.style.display = "block";
+                        form.style.display = "none";
+                    }
+                    else {
+                        let errors = data.errors;
+                        formIsvalid = false;
+
+                        new FormData(form).forEach((value, key) => {
+                            if (key != 'csrfmiddlewaretoken') {
+                                const errorElement = document.getElementById(`error_${key}`);
+                                if (errorElement) {
+                                    errorElement.innerText = "";
+                                } else {
+                                    console.warn(`Error element with ID 'error_${key}' not found.`);
+                                }
+                            }
+                        });
+
+                        Object.keys(errors).forEach(key => {
+                            const errorElement = document.getElementById(`error_${key}`);
+                            if (errorElement) {
+                                errorElement.innerText = errors[key].join('');
+                            } else {
+                                console.warn(`Error element with ID 'error_${key}' not found.`);
+                            }
+                        })
+                        // console.log('Nonvalid');
+                    }
+                })
+
+                .catch(error => {
+                    console.log(error);
+                })
+        }
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            validateFormAndCheckout();
+        })
+
+
+        // For paypal
+
+        paypal.Buttons({
+
+            // Call your server to set up the transaction
+            createOrder: function (data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: parseFloat('{{cart.total}}').toFixed(2)
+                        }
+                    }]
+                });
+            },
+
+            // Finalize the transaction
+            onApprove: function (data, actions) {
+                return actions.order.capture().then(function (orderData) {
+
+                    // console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+                    const transactionId = orderData.purchase_units[0].payments.captures[0].id;
+                    const amount = parseFloat(orderData.purchase_units[0].payments.captures[0].amount.value).toFixed(2);
+
+                    let customer = {};
+                    new FormData(form).forEach((value, key) => {
+                        customer[key] = value;
+                    })
+                    delete customer['csrfmiddlewaretoken'];
+                    customer['total_bill'] = amount;
+                    customer['paypal_transaction_id'] = transactionId;
+
+                    const url = '/save_order/';
+                    fetch(url, {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfmiddlewaretoken
+                        },
+                        body: JSON.stringify(customer),
+                    })
+                        .then(response => {
+                            return response.json();
+                        })
+                        .then(data => {
+                            mainContent.innerHTML = '';
+                            // Show a success message to the buyer
+                            Swal.fire({
+                                title: "Thank You",
+                                text: "Your order has been received",
+                                icon: "success"
+                            })
+                                .then(result => {
+                                    window.location.href = window.location.origin + '/orders/';
+                                });
+
+                        })
+                        .catch(error => {
+                            console.log(error);
+                        })
+
+                });
+            }
+
+        }).render('#paypal-button-container');
+
+
+
+    </script>
+
+
+{% endblock extra_scripts %}

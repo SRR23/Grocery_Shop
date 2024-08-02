@@ -1,0 +1,15 @@
+
+
+{% if product_list.has_previous %}
+<a href="?page={{product_list.previous_page_number}}" class="rounded">&laquo;</a>
+{% endif %}
+
+{% for page in paginator.page_range %}
+{% if product_list.number > page|add:"-4"  and product_list.number < page|add:"+4" %}
+<a href="?page={{page}}" class="{% if page == product_list.number %} active {% endif %} rounded">{{page}}</a>
+{% endif %}
+{% endfor %}
+
+{% if product_list.has_next %}
+<a href="?page={{product_list.next_page_number}}" class="rounded">&raquo;</a>
+{% endif %}

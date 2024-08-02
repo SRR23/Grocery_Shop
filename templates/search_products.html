@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Search Results {{key}} {% endblock title %}
+{% block content %}
+
+
+    <!-- Single Page Header start -->
+    <div class="container-fluid page-header py-5">
+        <h1 class="text-center text-white display-6">Shop</h1>
+        <ol class="breadcrumb justify-content-center mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item active text-white">{{key}}</li>
+        </ol>
+    </div>
+    <!-- Single Page Header End -->
+
+
+    <!-- Fruits Shop Start-->
+     {% if product_list.count %}
+    <div class="container-fluid fruite py-5">
+        <div class="container py-5">
+            <h1 class="mb-4">Search results for {{key}}</h1>
+            <div class="row g-4">
+                <div class="col-lg-12">
+                    <div class="row g-4">
+                        <div class="col-xl-3">
+                            <form action="{% url 'search_products' %}" method="GET">
+                                <div class="input-group w-100 mx-auto d-flex">
+                                    <input name="key" ype="text" class="form-control p-3" placeholder="keywords" aria-describedby="search-icon-1">
+                                    <button type="submit" id="search-icon-1" class="input-group-text p-3"><i class="fa fa-search"></i></button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-6"></div>
+                        
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-lg-3">
+                            <div class="row g-4">
+                                <div class="col-lg-12">
+                                    <div class="mb-3">
+                                        <h4>Categories</h4>
+                                        <ul class="list-unstyled fruite-categorie">
+                                            {% for ctg in categories %}
+                                            <li>
+                                                <div class="d-flex justify-content-between fruite-name">
+                                                    <a href="{% url 'category_details' ctg.slug %}"><i class="fas fa-apple-alt me-2"></i>{{ctg.title}}</a>
+                                                    <span>({{ctg.blogs_count}})</span>
+                                                </div>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        <div class="col-lg-9">
+                            <div class="row g-4 justify-content-center">
+                                {% for P in product_list %}
+                                <div class="col-md-6 col-lg-6 col-xl-4">
+                                    <div class="rounded position-relative fruite-item">
+                                        <div class="fruite-img">
+                                            <img src="{{P.image.url}}" class="img-fluid w-100 rounded-top" alt="">
+                                        </div>
+                                        
+                                        <div class="p-4 border border-secondary border-top-0 rounded-bottom">
+                                            <a href="{% url 'product_details' P.slug %}">
+                                                <h4>{{P.title}}</h4>
+                                            </a>
+                                            
+                                            <div class="d-flex justify-content-between flex-lg-wrap">
+                                                <p class="text-dark fs-5 fw-bold mb-0">${{P.price}} / kg</p>
+                                                
+                                                <form action="{% url 'add_cart' P.id %}" method="POST">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn border border-secondary rounded-pill px-3 text-primary"> Add to cart</button>
+                                                </form>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+
+                                <div class="col-12">
+                                    <div class="pagination d-flex justify-content-center mt-5">
+                                    {% include "pagination.html" %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row justify-content-center align-items-center">
+        <div class="col-md-5">
+            <img class="img-fluid" src="{% static 'img/No_products_Found.png' %}" 
+            style="width: 440px;" alt="no-result">
+        </div>
+    </div>
+    {% endif %}
+    <!-- Fruits Shop End-->
+
+
+{% endblock content %}
